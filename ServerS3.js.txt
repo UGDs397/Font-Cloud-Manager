@@ -1,0 +1,61 @@
+const express = require('express');
+const path = require('path');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
+const cors = require('cors');
+
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+
+// ====== AWS S3 Configuration ======
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID, // Set in Render environment
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
+});
+
+
+// Multer-S3 storage configuration
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: process.env.AWS_BUCKET_NAME, // Set in Render environment
+    acl: 'private', // 'public-read' if you want public URLs
+    key: (req, file, cb) => {
+      const fileName = `fonts/${Date.now()}_${file.originalname}`;
+      cb(null, fileName);
+    }
+  })
+});
+
+
+// ====== Upload Endpoint ======
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+  res.json({
+    message: 'File uploaded successfully to S3',
+    key: req.file.key,
+    url: req.file.location // S3 URL (works if ACL allows access)
+  });
+});
+
+
+// ====== Serve Frontend ======
+const frontendBuildPath = path.join(__dirname, 'subfolders/client/build');
+app.use(express.static(frontendBuildPath));
+
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(frontendBuildPath, 'index.html'));
+});
+
+
+// ====== Start Server ======
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

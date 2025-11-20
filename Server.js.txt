@@ -1,0 +1,32 @@
+const express = require('express');
+const path = require('path');
+const multer = require('multer');
+const cors = require('cors');
+
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'client')));
+
+
+// Configure uploads folder
+const upload = multer({ dest: 'uploads/' });
+
+
+// Example file upload endpoint
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).send('No file uploaded.');
+  res.json({ filename: req.file.filename, originalName: req.file.originalname });
+});
+
+
+// Serve index.html for frontend
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
+
+
+// Use dynamic port for Render
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
