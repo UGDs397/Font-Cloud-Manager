@@ -1,0 +1,51 @@
+# ---------------------------
+# Node Essentials
+# ---------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# ---------------------------
+# System Files
+# ---------------------------
+.DS_Store
+Thumbs.db
+
+
+# ---------------------------
+# Env / Security
+# ---------------------------
+.env
+.env.* # in case there are multiple
+*.key
+*.pem
+
+
+# ---------------------------
+# Build / Cache
+# ---------------------------
+dist/
+build/
+.cache/
+.temp/
+*.log
+
+
+# ---------------------------
+# Uploads (Keep folder but ignore files)
+# ---------------------------
+uploads/*
+!uploads/.gitkeep
+
+
+# ---------------------------
+# Optional: IDE & Editor Junk
+# ---------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
